@@ -1,6 +1,6 @@
 {
   "name": "@blue-performance/capacitor-barcode-scanner",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A fast and efficient (QR) barcode scanner for Capacitor",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -13,7 +13,7 @@
     "ios/Plugin/",
     "CapacitorCommunityBarcodeScanner.podspec"
   ],
-  "author": "tafelnl",
+  "author": "Blue Performance GmbH",
   "license": "MIT",
   "repository": {
     "type": "git",

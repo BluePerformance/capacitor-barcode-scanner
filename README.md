@@ -1,16 +1,16 @@
 <p align="center"><br><img src="https://user-images.githubusercontent.com/236501/85893648-1c92e880-b7a8-11ea-926d-95355b8175c7.png" width="128" height="128" /></p>
 <h3 align="center">Barcode Scanner</h3>
-<p align="center"><strong><code>@capacitor-community/barcode-scanner</code></strong></p>
+<p align="center"><strong><code>@blue-performance/capacitor-barcode-scanner</code></strong></p>
 <p align="center">
   A fast and efficient (QR) barcode scanner for Capacitor.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/maintenance/yes/2022?style=flat-square" />
-  <a href="https://www.npmjs.com/package/@capacitor-community/barcode-scanner"><img src="https://img.shields.io/npm/l/@capacitor-community/barcode-scanner?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/@blue-performance/capacitor-barcode-scanner"><img src="https://img.shields.io/npm/l/@blue-performance/capacitor-barcode-scanner?style=flat-square" /></a>
 <br>
-  <a href="https://www.npmjs.com/package/@capacitor-community/barcode-scanner"><img src="https://img.shields.io/npm/dw/@capacitor-community/barcode-scanner?style=flat-square" /></a>
-  <a href="https://www.npmjs.com/package/@capacitor-community/barcode-scanner"><img src="https://img.shields.io/npm/v/@capacitor-community/barcode-scanner?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/@blue-performance/capacitor-barcode-scanner"><img src="https://img.shields.io/npm/dw/@blue-performance/capacitor-barcode-scanner?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/@blue-performance/capacitor-barcode-scanner"><img src="https://img.shields.io/npm/v/@blue-performance/capacitor-barcode-scanner?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 <a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-1-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
@@ -47,12 +47,12 @@ On **Android** this library uses [`zxing-android-embedded`](https://github.com/j
 
 `v1.x` supports Capacitor `v2.x`
 
-All releases of this package can be found on [npm](https://www.npmjs.com/package/@capacitor-community/barcode-scanner?activeTab=versions) and on [GitHub Releases](https://github.com/capacitor-community/barcode-scanner/releases)
+All releases of this package can be found on [npm](https://www.npmjs.com/package/@blue-performance/capacitor-barcode-scanner?activeTab=versions) and on [GitHub Releases](https://github.com/capacitor-community/barcode-scanner/releases)
 
 ## Installation
 
 ```bash
-npm install @capacitor-community/barcode-scanner
+npm install @blue-performance/capacitor-barcode-scanner
 npx cap sync
 ```
 
@@ -116,7 +116,7 @@ The complete API reference can be found [here](./API_REFERENCE.md).
 Scanning a (QR) barcode can be as simple as:
 
 ```js
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 const startScan = async () => {
   // Check camera permission
@@ -149,7 +149,7 @@ If you still cannot see the camera view, check [**here**](#the-scanner-view-does
 After `startScan()` is resolved, the Scanner View will be automatically destroyed to save battery. But if you want to cancel the scan before `startScan()` is resolved (AKA no code has been recognized yet), you will have to call `stopScan()` manually. Example:
 
 ```js
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 const stopScan = () => {
   BarcodeScanner.showBackground();
@@ -163,7 +163,7 @@ In Vue.js you could do something like this in a specific view where you use the 
 
 ```vue
 <script>
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 export default {
   methods: {
@@ -191,7 +191,7 @@ To boost performance and responsiveness (by just a bit), a `prepare()` method is
 For example:
 
 ```js
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 const prepare = () => {
   BarcodeScanner.prepare();
@@ -228,7 +228,7 @@ askUser();
 This is fully optional and would work the same as:
 
 ```js
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 const startScan = async () => {
   BarcodeScanner.hideBackground();
@@ -256,7 +256,7 @@ The latter will just appear a little slower to the user.
 This plugin does not automatically handle permissions. But the plugin _does_ have a utility method to check and request the permission. You will have to request the permission from JavaScript. A simple example follows:
 
 ```js
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 const checkPermission = async () => {
   // check or request permission
@@ -274,7 +274,7 @@ const checkPermission = async () => {
 A more detailed and more UX-optimized example:
 
 ```js
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 const didUserGrantPermission = async () => {
   // check if user already granted permission
@@ -336,7 +336,7 @@ didUserGrantPermission();
 If a user denied the permission for good, `status.denied` will be set to true. On Android this will happen only when the user checks the box `never ask again`. To get the permission anyway you will have to redirect the user to the settings of the app. This can be done simply be doing the following:
 
 ```js
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@blue-performance/capacitor-barcode-scanner';
 
 const checkPermission = async () => {
   const status = await BarcodeScanner.checkPermission();
@@ -357,7 +357,7 @@ const checkPermission = async () => {
 You can setup the scanner to only recognize specific types of barcodes like this:
 
 ```ts
-import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner, SupportedFormat } from '@blue-performance/capacitor-barcode-scanner';
 
 BarcodeScanner.startScan({ targetedFormats: [SupportedFormat.QR_CODE] }); // this will now only target QR-codes
 ```
