@@ -11,7 +11,7 @@
     "android/build.gradle",
     "dist/",
     "ios/Plugin/",
-    "CapacitorCommunityBarcodeScanner.podspec"
+    "BluePerformanceCapacitorBarcodeScanner.podspec"
   ],
   "author": "Blue Performance GmbH",
   "license": "MIT",
