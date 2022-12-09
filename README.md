@@ -18,20 +18,17 @@
 
 ## Table of Contents
 
-- [Maintainers](#maintainers)
 - [About](#about)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
 
-## Maintainers
-
-| Maintainer | GitHub                                | Active |
-| ---------- | ------------------------------------- | ------ |
-| thegnuu    | [thegnuu](https://github.com/thegnuu) | yes    |
-| tafelnl    | [tafelnl](https://github.com/tafelnl) | no     |
-
 ## About
+
+### Supported use cases
+
+- Scanning QR Codes
+- Taking photos
 
 ### Supported barcodes
 
