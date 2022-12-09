@@ -17,6 +17,7 @@ export interface BarcodeScannerPlugin {
   openAppSettings(): Promise<void>;
   enableTorch(): Promise<void>;
   disableTorch(): Promise<void>;
+  takePicture(): Promise<void>;
   toggleTorch(): Promise<void>;
   getTorchState(): Promise<TorchStateResult>;
 }

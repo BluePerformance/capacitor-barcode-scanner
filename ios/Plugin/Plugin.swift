@@ -3,7 +3,7 @@ import Foundation
 import AVFoundation
 
 @objc(BarcodeScanner)
-public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate {
+public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, AVCapturePhotoCaptureDelegate {
 
     class CameraView: UIView {
         var videoPreviewLayer:AVCaptureVideoPreviewLayer?
@@ -138,6 +138,8 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate {
         return false
     }
 
+    var photoOutput = AVCapturePhotoOutput()
+
     private func setupCamera(cameraDirection: String? = "back") -> Bool {
         do {
             var cameraDir = cameraDirection
@@ -169,6 +171,8 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate {
             captureSession!.addInput(input)
             metaOutput = AVCaptureMetadataOutput()
             captureSession!.addOutput(metaOutput!)
+            //adding nextline
+            captureSession!.addOutput(self.photoOutput)
             metaOutput!.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
             captureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
             cameraView.addPreviewLayer(captureVideoPreviewLayer)
@@ -434,6 +438,55 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate {
     @objc func showBackground(_ call: CAPPluginCall) {
         self.showBackground()
         call.resolve()
+    }
+
+    public var base64CapturedImage: String? = ""
+
+    func didFinishProcessingPhoto(){
+        print("didFinishProcessingPhoto")
+    }
+    
+    public func photoOutput(_ output: AVCapturePhotoOutput,
+                            didFinishProcessingPhoto photo: AVCapturePhoto,
+                            error: Error?) {
+        guard let imageData = photo.fileDataRepresentation() else { return }
+        let previewImage = UIImage(data: imageData)
+        let jpegPreview = previewImage?.jpegData(compressionQuality: 1)
+        let base64 = jpegPreview?.base64EncodedString()
+        self.base64CapturedImage = base64
+        imageContinuation?.resume(returning: self.base64CapturedImage!)
+        self.didFinishProcessingPhoto()
+    }
+    
+    private var imageContinuation: CheckedContinuation<String, Error>?
+
+    
+    func startCapture(from photoOutput: AVCapturePhotoOutput, using settings: AVCapturePhotoSettings) async throws -> String {
+            return try await withCheckedThrowingContinuation { continuation in
+                imageContinuation = continuation
+                photoOutput.capturePhoto(with: settings, delegate: self)
+            }
+        }
+    
+    @objc func takePicture(_ call: CAPPluginCall) {
+        let settings = AVCapturePhotoSettings()
+        let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
+        let previewFormat = [
+            kCVPixelBufferPixelFormatTypeKey as String: previewPixelType,
+            kCVPixelBufferWidthKey as String: 160,
+            kCVPixelBufferHeightKey as String: 160
+        ]
+        settings.previewPhotoFormat = previewFormat
+        
+        Task {
+                do {
+                    let image = try await startCapture(from: photoOutput, using: settings)
+                    call.resolve(["result": image])
+                } catch let error {
+                    print(error.localizedDescription)
+                }
+            }
+        
     }
 
     @objc func startScan(_ call: CAPPluginCall) {

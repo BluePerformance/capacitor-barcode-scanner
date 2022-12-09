@@ -63,6 +63,10 @@ export class BarcodeScannerWeb
     throw this.unimplemented('Not implemented on web.');
   }
 
+  async takePicture(): Promise<void> {
+    throw this.unimplemented('Not implemented on web.');
+  }
+  
   async toggleTorch(): Promise<void> {
     throw this.unimplemented('Not implemented on web.');
   }

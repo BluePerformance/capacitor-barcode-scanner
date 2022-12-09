@@ -353,6 +353,17 @@ public class BarcodeScanner extends Plugin implements BarcodeCallback {
     }
 
     @PluginMethod
+    public void takePicture(PluginCall call) {
+        let img = new Image();
+        if (mBarcodeView != null) {
+            mBarcodeView.pause();
+            img = mBarcodeView.takePicture();
+            Log(img)
+        }
+        call.resolve(img.base64);
+    }
+
+    @PluginMethod
     public void stopScan(PluginCall call) {
         if (call.hasOption("resolveScan") && getSavedCall() != null) {
             Boolean resolveScan = call.getBoolean("resolveScan", false);
