@@ -30,7 +30,7 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, 
                     layer.frame = self.bounds
                 }
             }
-            
+
             if let interfaceOrientation = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.windowScene?.interfaceOrientation {
                 self.videoPreviewLayer?.connection?.videoOrientation = interfaceOrientationToVideoOrientation(interfaceOrientation)
             }
@@ -145,7 +145,7 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, 
             var cameraDir = cameraDirection
             cameraView.backgroundColor = UIColor.clear
             self.webView!.superview!.insertSubview(cameraView, belowSubview: self.webView!)
-            
+
             let availableVideoDevices =  discoverCaptureDevices()
             for device in availableVideoDevices {
                 if device.position == AVCaptureDevice.Position.back {
@@ -226,7 +226,7 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, 
     private func dismantleCamera() {
         // opposite of setupCamera
 
-        
+
         DispatchQueue.main.async {
             if (self.captureSession != nil) {
                 self.captureSession!.stopRunning()
@@ -288,7 +288,7 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, 
                     self.load();
                     self.shouldRunScan = true
                     self.prepare(self.savedCall)
-                } 
+                }
             }
         } else {
             self.didRunCameraPrepare = false
@@ -441,11 +441,12 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, 
     }
 
     public var base64CapturedImage: String? = ""
+    public var absoluteUrlCapturedImage: String? = ""
 
     func didFinishProcessingPhoto(){
         print("didFinishProcessingPhoto")
     }
-    
+
     public func photoOutput(_ output: AVCapturePhotoOutput,
                             didFinishProcessingPhoto photo: AVCapturePhoto,
                             error: Error?) {
@@ -454,20 +455,36 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, 
         let jpegPreview = previewImage?.jpegData(compressionQuality: 1)
         let base64 = jpegPreview?.base64EncodedString()
         self.base64CapturedImage = base64
+        do {
+            let fileUrl = self.getTempFilePath()
+            try jpegPreview?.write(to: fileUrl)
+            self.absoluteUrlCapturedImage = fileUrl.absoluteString
+        } catch {
+        }
         imageContinuation?.resume(returning: self.base64CapturedImage!)
         self.didFinishProcessingPhoto()
     }
-    
+
+    // Get user's cache directory path
+    @objc func getTempFilePath() -> URL {
+        let path = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let identifier = UUID()
+        let randomIdentifier = identifier.uuidString.replacingOccurrences(of: "-", with: "")
+        let finalIdentifier = String(randomIdentifier.prefix(8))
+        let fileName = "tmp_capture_" + finalIdentifier + ".jpg"
+        let fileUrl=path.appendingPathComponent(fileName)
+        return fileUrl
+    }
+
     private var imageContinuation: CheckedContinuation<String, Error>?
 
-    
     func startCapture(from photoOutput: AVCapturePhotoOutput, using settings: AVCapturePhotoSettings) async throws -> String {
-            return try await withCheckedThrowingContinuation { continuation in
-                imageContinuation = continuation
-                photoOutput.capturePhoto(with: settings, delegate: self)
-            }
+        return try await withCheckedThrowingContinuation { continuation in
+            imageContinuation = continuation
+            photoOutput.capturePhoto(with: settings, delegate: self)
         }
-    
+    }
+
     @objc func takePicture(_ call: CAPPluginCall) {
         let settings = AVCapturePhotoSettings()
         let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
@@ -477,16 +494,16 @@ public class BarcodeScanner: CAPPlugin, AVCaptureMetadataOutputObjectsDelegate, 
             kCVPixelBufferHeightKey as String: 160
         ]
         settings.previewPhotoFormat = previewFormat
-        
+
         Task {
                 do {
                     let image = try await startCapture(from: photoOutput, using: settings)
-                    call.resolve(["result": image])
+                    call.resolve(["result": image, "url": self.absoluteUrlCapturedImage])
                 } catch let error {
                     print(error.localizedDescription)
                 }
             }
-        
+
     }
 
     @objc func startScan(_ call: CAPPluginCall) {
