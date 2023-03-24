@@ -3,15 +3,20 @@ package com.getcapacitor.community.barcodescanner;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -32,12 +37,23 @@ import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.BarcodeView;
+import com.journeyapps.barcodescanner.CameraPreview;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
+import com.journeyapps.barcodescanner.RawImageData;
+import com.journeyapps.barcodescanner.SourceData;
+import com.journeyapps.barcodescanner.camera.CameraInstance;
 import com.journeyapps.barcodescanner.camera.CameraSettings;
+import com.journeyapps.barcodescanner.camera.PreviewCallback;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.json.JSONException;
 
@@ -342,12 +358,49 @@ public class BarcodeScanner extends Plugin implements BarcodeCallback {
 
     @PluginMethod
     public void takePicture(PluginCall call) {
-        let img = new Image();
-        if (mBarcodeView != null) {
-            mBarcodeView.pause();
-            img = mBarcodeView.takePicture();
-        }
-        call.resolve(img.base64);
+        CameraInstance cameraInstance = mBarcodeView.getCameraInstance();
+
+        cameraInstance.requestPreview(
+            new PreviewCallback() {
+                @Override
+                public void onPreview(SourceData sourceData) {
+                    Bitmap bitmap = sourceData.getBitmap();
+
+                    // convert bitmap to base64 png
+                    String result = Base64.encodeToString(bitmapToByteArray(bitmap), Base64.DEFAULT);
+
+                    File f3 = getContext().getExternalCacheDir();
+                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(new java.util.Date());
+                    String path = f3.getPath() + "/barcode-scanner-" + timeStamp + ".jpg";
+                    File file = new File(path);
+                    try {
+                        OutputStream outStream = new FileOutputStream(file);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+                        outStream.close();
+                    } catch (Exception e) {
+                        path = "";
+                        e.printStackTrace();
+                    }
+
+                    JSObject data = new JSObject();
+                    data.put("result", result);
+                    data.put("url", path);
+                    call.resolve(data);
+                }
+
+                @Override
+                public void onPreviewError(Exception e) {
+                    Log.e("Camera", "Error while previewing", e);
+                }
+            }
+        );
+    }
+
+    private byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+
+        return stream.toByteArray();
     }
 
     @PluginMethod
