@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import org.json.JSONException;
 
 @CapacitorPlugin(permissions = { @Permission(strings = { Manifest.permission.CAMERA }, alias = BarcodeScanner.PERMISSION_ALIAS_CAMERA) })
@@ -369,9 +370,7 @@ public class BarcodeScanner extends Plugin implements BarcodeCallback {
                     // convert bitmap to base64 png
                     String result = Base64.encodeToString(bitmapToByteArray(bitmap), Base64.DEFAULT);
 
-                    File f3 = getContext().getExternalCacheDir();
-                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.ENGLISH).format(new java.util.Date());
-                    String path = f3.getPath() + "/barcode-scanner-" + timeStamp + ".jpg";
+                    String path = getTempFilePath();
                     File file = new File(path);
                     try {
                         OutputStream outStream = new FileOutputStream(file);
@@ -382,9 +381,11 @@ public class BarcodeScanner extends Plugin implements BarcodeCallback {
                         e.printStackTrace();
                     }
 
+                    String url = Uri.fromFile(file).toString();
+
                     JSObject data = new JSObject();
                     data.put("result", result);
-                    data.put("url", path);
+                    data.put("url", url);
                     call.resolve(data);
                 }
 
@@ -394,6 +395,21 @@ public class BarcodeScanner extends Plugin implements BarcodeCallback {
                 }
             }
         );
+    }
+
+    private String getTempDirectoryPath() {
+        File cache = null;
+
+        // Use internal storage
+        cache = getActivity().getCacheDir();
+
+        // Create the cache directory if it doesn't exist
+        cache.mkdirs();
+        return cache.getAbsolutePath();
+    }
+
+    private String getTempFilePath() {
+        return getTempDirectoryPath() + "/capture_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ".jpg";
     }
 
     private byte[] bitmapToByteArray(Bitmap bitmap) {
