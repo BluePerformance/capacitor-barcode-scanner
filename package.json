@@ -1,6 +1,6 @@
 {
   "name": "@blue-performance/capacitor-barcode-scanner",
-  "version": "3.0.10",
+  "version": "3.0.11",
   "description": "A fast and efficient (QR) barcode scanner for Capacitor",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
